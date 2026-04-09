@@ -66,12 +66,12 @@ export default function HowItWorks() {
   return (
     <section className="section section--cream" id="how-it-works" ref={sectionRef}>
       <div className="container">
-        <div className="reveal" style={{ textAlign: 'center' }}>
-          <p className="section-label" style={{ justifyContent: 'center' }}>How It Works</p>
+        <div className="reveal section-header--center">
+          <p className="section-label">How It Works</p>
           <h2 className="section-title">
             Four steps to <span className="text-highlight">precision</span>.
           </h2>
-          <p className="section-subtitle" style={{ margin: '0 auto' }}>
+          <p className="section-subtitle">
             From sample to insight in minutes. Clinical-grade diagnostics, simplified.
           </p>
         </div>

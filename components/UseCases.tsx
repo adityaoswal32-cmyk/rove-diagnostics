@@ -68,14 +68,14 @@ export default function UseCases() {
   return (
     <section className="section" id="use-cases" ref={sectionRef}>
       <div className="container">
-        <div className="reveal" style={{ textAlign: 'center', marginBottom: 'var(--space-lg)' }}>
-          <p className="section-label" style={{ justifyContent: 'center' }}>Use Cases</p>
+        <div className="reveal section-header--center" style={{ marginBottom: 'var(--space-lg)' }}>
+          <p className="section-label">Why Rove</p>
           <h2 className="section-title">
-            Designed for your <span className="text-highlight">biology</span>.
+            Your body isn&apos;t a <span className="text-highlight">black box</span>.
           </h2>
-          <p className="section-subtitle" style={{ margin: '0 auto' }}>
-            Whether you&apos;re managing a condition or optimizing your health,
-            Rove adapts to your needs.
+          <p className="section-subtitle">
+            Hormonal fluctuations drive almost every aspect of female biology. We
+            bring visibility to the invisible.
           </p>
         </div>
 
