@@ -252,20 +252,22 @@ export default function Hero() {
       <canvas ref={canvasRef} className="hero__canvas" />
       <DNAHelix />
       <div className="hero__content">
-        <p className="hero__label">Precision Women&apos;s Health</p>
-        <h1 className="hero__title">
-          <WordReveal text="Your hormones tell a *story.* We help you *read* it." />
-        </h1>
-        <p className="hero__subtitle">
-          Four hormones. Every cycle. Quantitative tracking with clinical-grade accuracy
-          — no lab visit required.
-        </p>
-        <div className="hero__data-stream">
-          <div className="data-stream" />
-        </div>
-        <div className="hero__actions">
-          <Link href="#waitlist" className="btn btn--primary btn--shimmer">Join Waitlist</Link>
-          <Link href="/science" className="btn btn--secondary">Explore Science</Link>
+        <div className="hero__text-block">
+          <p className="hero__label">Precision Women&apos;s Health</p>
+          <h1 className="hero__title">
+            <WordReveal text="Your hormones tell a *story.* We help you *read* it." />
+          </h1>
+          <p className="hero__subtitle">
+            Four hormones. Every cycle. Quantitative tracking with clinical-grade accuracy
+            — no lab visit required.
+          </p>
+          <div className="hero__data-stream">
+            <div className="data-stream" />
+          </div>
+          <div className="hero__actions">
+            <Link href="#waitlist" className="btn btn--primary btn--shimmer">Join Waitlist</Link>
+            <Link href="/science" className="btn btn--secondary">Explore Science</Link>
+          </div>
         </div>
       </div>
       <div className="hero__scroll-indicator">

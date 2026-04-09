@@ -741,6 +741,11 @@ ul, ol {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 var(--space-lg);
+  width: 100%;
+}
+
+.hero__text-block {
+  max-width: 650px;
 }
 
 .hero__label {
