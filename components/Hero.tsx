@@ -30,7 +30,7 @@ function WordReveal({ text, className }: WordRevealProps) {
         const cleanWord = isItalic ? word.slice(1, -1) : word;
 
         return (
-          <span key={i} style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom', paddingRight: i !== words.length - 1 ? '0.22em' : '0' }}>
+          <span key={i} style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom', paddingBottom: '0.2em', marginBottom: '-0.2em', paddingRight: i !== words.length - 1 ? '0.22em' : '0' }}>
             <span
               className={`word-reveal__word ${visible ? 'visible' : ''}`}
               style={{ transitionDelay: `${0.2 + i * 0.08}s`, display: 'inline-block', transformOrigin: 'left' }}
