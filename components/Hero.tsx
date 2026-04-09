@@ -24,19 +24,19 @@ function WordReveal({ text, className }: WordRevealProps) {
   const words = text.split(' ');
 
   return (
-    <span ref={ref} className={`word-reveal ${className || ''}`} style={{ display: 'inline', margin: 0, padding: 0 }}>
+    <span ref={ref} className={`word-reveal ${className || ''}`}>
       {words.map((word, i) => {
+        // Check if word should be italic (marked with *word*)
         const isItalic = word.startsWith('*') && word.endsWith('*');
         const cleanWord = isItalic ? word.slice(1, -1) : word;
 
         return (
-          <span key={i} style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom', paddingBottom: '0.2em', marginBottom: '-0.2em', paddingRight: i !== words.length - 1 ? '0.22em' : '0' }}>
-            <span
-              className={`word-reveal__word ${visible ? 'visible' : ''}`}
-              style={{ transitionDelay: `${0.2 + i * 0.08}s`, display: 'inline-block', transformOrigin: 'left' }}
-            >
-              {isItalic ? <em>{cleanWord}</em> : cleanWord}
-            </span>
+          <span
+            key={i}
+            className={`word-reveal__word ${visible ? 'visible' : ''}`}
+            style={{ transitionDelay: `${0.5 + i * 0.08}s` }}
+          >
+            {isItalic ? <em>{cleanWord}</em> : cleanWord}
           </span>
         );
       })}
@@ -252,22 +252,20 @@ export default function Hero() {
       <canvas ref={canvasRef} className="hero__canvas" />
       <DNAHelix />
       <div className="hero__content">
-        <div className="hero__text-block">
-          <p className="hero__label">Precision Women&apos;s Health</p>
-          <h1 className="hero__title">
-            <WordReveal text="Your hormones tell a *story.* We help you *read* it." />
-          </h1>
-          <p className="hero__subtitle">
-            Four hormones. Every cycle. Quantitative tracking with clinical-grade accuracy
-            — no lab visit required.
-          </p>
-          <div className="hero__data-stream">
-            <div className="data-stream" />
-          </div>
-          <div className="hero__actions">
-            <Link href="#waitlist" className="btn btn--primary btn--shimmer">Join Waitlist</Link>
-            <Link href="/science" className="btn btn--secondary">Explore Science</Link>
-          </div>
+        <p className="hero__label">Precision Women&apos;s Health</p>
+        <h1 className="hero__title">
+          <WordReveal text="Your hormones tell a *story.* We help you *read* it." />
+        </h1>
+        <p className="hero__subtitle">
+          Four hormones. Every cycle. Quantitative tracking with clinical-grade accuracy
+          — no lab visit required.
+        </p>
+        <div className="hero__data-stream">
+          <div className="data-stream" />
+        </div>
+        <div className="hero__actions">
+          <Link href="#waitlist" className="btn btn--primary btn--shimmer">Join Waitlist</Link>
+          <Link href="/science" className="btn btn--secondary">Explore Science</Link>
         </div>
       </div>
       <div className="hero__scroll-indicator">
