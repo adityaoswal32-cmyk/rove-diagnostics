@@ -79,6 +79,7 @@ export default function HowItWorks() {
         <div className="steps__grid">
           {/* Progressive connection line */}
           <div
+            className="steps__connection"
             style={{
               position: 'absolute',
               top: 42,

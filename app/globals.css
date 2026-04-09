@@ -1763,6 +1763,10 @@ ul, ol {
     display: none;
   }
 
+  .steps__connection {
+    display: none !important;
+  }
+
   .usecases__grid {
     grid-template-columns: 1fr;
   }
@@ -1841,7 +1845,15 @@ ul, ol {
   }
 
   .hero {
-    padding-top: 70px;
+    padding-top: 100px;
+    background-position: right -20% bottom -5%;
+    background-size: 80% auto;
+    align-items: flex-start;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    width: 100%;
   }
 
   .btn {
