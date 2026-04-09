@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Target, TrendingUp, Microscope } from 'lucide-react';
 
 function AnimatedStat({ value, suffix = '', prefix = '' }) {
   const [count, setCount] = useState(0);
@@ -22,7 +23,7 @@ function AnimatedStat({ value, suffix = '', prefix = '' }) {
             const eased = 1 - Math.pow(1 - progress, 3);
             const current = eased * numericValue;
             // Use 2 decimal places to avoid rounding 0.96 to 1.0
-            setCount(isDecimal ? current.toFixed(2) : Math.round(current));
+            setCount(isDecimal ? parseFloat(current.toFixed(2)) : Math.round(current));
             if (progress < 1) requestAnimationFrame(animate);
           };
           requestAnimationFrame(animate);
@@ -59,30 +60,9 @@ function AnimatedStat({ value, suffix = '', prefix = '' }) {
 }
 
 const clinicalIcons = {
-  accuracy: (
-    <svg viewBox="0 0 40 40" fill="none" stroke="var(--sage)" strokeWidth="1.2" style={{ width: 40, height: 40, marginBottom: 'var(--space-sm)' }}>
-      <circle cx="20" cy="20" r="16" />
-      <circle cx="20" cy="20" r="10" strokeDasharray="3 2" />
-      <circle cx="20" cy="20" r="4" />
-      <circle cx="20" cy="20" r="1.5" fill="var(--terracotta)" stroke="none" />
-    </svg>
-  ),
-  correlation: (
-    <svg viewBox="0 0 40 40" fill="none" stroke="var(--sage)" strokeWidth="1.2" style={{ width: 40, height: 40, marginBottom: 'var(--space-sm)' }}>
-      <path d="M6 34L14 22L22 28L30 14L38 8" />
-      <circle cx="14" cy="22" r="2" fill="var(--sage)" stroke="none" opacity="0.4" />
-      <circle cx="22" cy="28" r="2" fill="var(--sage)" stroke="none" opacity="0.4" />
-      <circle cx="30" cy="14" r="2" fill="var(--sage)" stroke="none" opacity="0.4" />
-    </svg>
-  ),
-  detection: (
-    <svg viewBox="0 0 40 40" fill="none" stroke="var(--sage)" strokeWidth="1.2" style={{ width: 40, height: 40, marginBottom: 'var(--space-sm)' }}>
-      <rect x="4" y="4" width="32" height="32" rx="4" />
-      <path d="M4 20h32" strokeDasharray="3 2" />
-      <path d="M10 28Q15 12 20 20Q25 28 30 14" />
-      <circle cx="20" cy="20" r="2" fill="var(--terracotta)" stroke="none" />
-    </svg>
-  ),
+  accuracy: <Target strokeWidth={1.5} size={40} color="var(--sage)" style={{ marginBottom: 'var(--space-sm)' }} />,
+  correlation: <TrendingUp strokeWidth={1.5} size={40} color="var(--sage)" style={{ marginBottom: 'var(--space-sm)' }} />,
+  detection: <Microscope strokeWidth={1.5} size={40} color="var(--sage)" style={{ marginBottom: 'var(--space-sm)' }} />,
 };
 
 export default function ClinicalRelevance() {

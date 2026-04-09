@@ -1,40 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { Activity, HeartPulse, RefreshCcw, ShieldCheck } from 'lucide-react';
 
 const useCaseIcons = {
-  pcos: (
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <circle cx="24" cy="24" r="14" strokeDasharray="4 3" />
-      <circle cx="24" cy="24" r="8" />
-      <circle cx="18" cy="18" r="2" fill="currentColor" stroke="none" opacity="0.4" />
-      <circle cx="30" cy="20" r="1.5" fill="currentColor" stroke="none" opacity="0.4" />
-      <circle cx="26" cy="32" r="1.8" fill="currentColor" stroke="none" opacity="0.4" />
-    </svg>
-  ),
-  fertility: (
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <circle cx="24" cy="20" r="10" />
-      <path d="M24 30v10" />
-      <path d="M20 36h8" />
-      <circle cx="24" cy="20" r="3" fill="currentColor" stroke="none" opacity="0.3" />
-      <path d="M14 20a10 10 0 0120 0" strokeDasharray="3 3" />
-    </svg>
-  ),
-  cycle: (
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <circle cx="24" cy="24" r="14" />
-      <path d="M24 10v14l8 6" />
-      <path d="M18 24a6 6 0 0112 0" strokeDasharray="2 2" />
-      <circle cx="24" cy="24" r="2" fill="currentColor" stroke="none" opacity="0.4" />
-    </svg>
-  ),
-  preventive: (
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <path d="M24 8l14 8v12c0 8-6 14-14 16C16 42 10 36 10 28V16l14-8z" />
-      <path d="M18 24l4 4 8-8" />
-    </svg>
-  ),
+  pcos: <Activity strokeWidth={1.5} size={32} color="var(--sage)" />,
+  fertility: <HeartPulse strokeWidth={1.5} size={32} color="var(--sage)" />,
+  cycle: <RefreshCcw strokeWidth={1.5} size={32} color="var(--sage)" />,
+  preventive: <ShieldCheck strokeWidth={1.5} size={32} color="var(--sage)" />,
 };
 
 const miniCharts = {

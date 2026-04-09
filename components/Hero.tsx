@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
-function WordReveal({ text, className }) {
+interface WordRevealProps {
+  text: string;
+  className?: string;
+}
+
+function WordReveal({ text, className }: WordRevealProps) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 

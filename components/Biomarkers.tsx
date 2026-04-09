@@ -20,7 +20,8 @@ export default function Biomarkers() {
           if (entry.isIntersecting) {
             entry.target.classList.add('revealed');
             // Check for sparklines inside
-            const index = entry.target.dataset.index;
+            const target = entry.target as HTMLElement;
+            const index = target.dataset.index;
             if (index !== undefined) {
               setAnimatedCards(prev => new Set([...prev, index]));
             }

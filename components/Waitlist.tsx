@@ -103,7 +103,8 @@ export default function Waitlist() {
     setError(null);
     
     try {
-      const email = document.getElementById('waitlist-email').value;
+      const emailInput = document.getElementById('waitlist-email') as HTMLInputElement;
+      const email = emailInput?.value;
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

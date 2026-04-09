@@ -1,41 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Home, Smartphone, LineChart, Lightbulb } from 'lucide-react';
 
 function AnimatedStepIcon({ type }) {
   const icons = {
-    home: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="step__icon-svg">
-        <path d="M3 12l9-8 9 8" className="svg-draw drawn" />
-        <path d="M5 10v10h14V10" className="svg-draw drawn" style={{ transitionDelay: '0.2s' }} />
-        <rect x="9" y="14" width="6" height="6" className="svg-draw drawn" style={{ transitionDelay: '0.4s' }} />
-      </svg>
-    ),
-    phone: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="step__icon-svg">
-        <rect x="6" y="3" width="12" height="18" rx="2" className="svg-draw drawn" />
-        <path d="M8 7h8M8 10h8" className="svg-draw drawn" style={{ transitionDelay: '0.2s' }} strokeDasharray="4 2" />
-        <circle cx="12" cy="17" r="1" fill="currentColor" stroke="none" />
-      </svg>
-    ),
-    chart: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="step__icon-svg">
-        <path d="M3 20L3 4" className="svg-draw drawn" />
-        <path d="M3 20L21 20" className="svg-draw drawn" style={{ transitionDelay: '0.15s' }} />
-        <path d="M5 16Q8 8 12 12Q16 16 20 6" className="svg-draw drawn" style={{ transitionDelay: '0.3s' }} />
-        <circle cx="12" cy="12" r="1.5" fill="var(--terracotta)" stroke="none" className="svg-draw drawn" style={{ transitionDelay: '0.5s' }} />
-      </svg>
-    ),
-    insights: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="step__icon-svg">
-        <circle cx="12" cy="12" r="9" className="svg-draw drawn" />
-        <path d="M12 3v4" className="svg-draw drawn" style={{ transitionDelay: '0.15s' }} />
-        <path d="M12 17v4" className="svg-draw drawn" style={{ transitionDelay: '0.2s' }} />
-        <path d="M3 12h4" className="svg-draw drawn" style={{ transitionDelay: '0.25s' }} />
-        <path d="M17 12h4" className="svg-draw drawn" style={{ transitionDelay: '0.3s' }} />
-        <circle cx="12" cy="12" r="3" className="svg-draw drawn" style={{ transitionDelay: '0.4s' }} />
-      </svg>
-    ),
+    home: <Home strokeWidth={1.5} size={28} className="svg-draw drawn" />,
+    phone: <Smartphone strokeWidth={1.5} size={28} className="svg-draw drawn" />,
+    chart: <LineChart strokeWidth={1.5} size={28} className="svg-draw drawn" />,
+    insights: <Lightbulb strokeWidth={1.5} size={28} className="svg-draw drawn" />,
   };
   return icons[type] || null;
 }
@@ -51,7 +24,8 @@ export default function HowItWorks() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('revealed');
-            const stepIndex = entry.target.dataset.step;
+            const target = entry.target as HTMLElement;
+            const stepIndex = target.dataset.step;
             if (stepIndex !== undefined) {
               setRevealedSteps(prev => new Set([...prev, stepIndex]));
             }
