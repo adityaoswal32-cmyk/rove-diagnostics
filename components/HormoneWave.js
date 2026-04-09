@@ -22,10 +22,13 @@ export default function HormoneWave() {
     let logicalW = canvas.clientWidth || 800;
     let logicalH = canvas.clientHeight || 350;
 
+    let lastW = 0, lastH = 0;
     const resize = () => {
       logicalW = canvas.clientWidth;
       logicalH = canvas.clientHeight;
       if (logicalW === 0 || logicalH === 0) return;
+      if (logicalW === lastW && Math.abs(logicalH - lastH) < 80) return;
+      lastW = logicalW; lastH = logicalH;
       
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       // Set actual size in memory (scaled for retina)

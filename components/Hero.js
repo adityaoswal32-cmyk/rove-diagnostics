@@ -103,10 +103,16 @@ export default function Hero() {
       alpha: Math.random() * 0.3 + 0.05,
     }));
 
+    let lastW = 0, lastH = 0;
     const resize = () => {
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      if (w === lastW && Math.abs(h - lastH) < 80) return; // Prevent mobile address-bar resize glitches
+      lastW = w; lastH = h;
+      
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = canvas.offsetWidth * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
       ctx.scale(dpr, dpr);
     };
 
