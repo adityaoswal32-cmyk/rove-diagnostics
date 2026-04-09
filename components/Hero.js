@@ -228,6 +228,7 @@ export default function Hero() {
     const visibilityObserver = new IntersectionObserver(([entry]) => {
       isVisible = entry.isIntersecting;
       if (isVisible) {
+        if (animFrame) cancelAnimationFrame(animFrame);
         draw();
       }
     }, { threshold: 0 });
