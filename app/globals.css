@@ -727,10 +727,11 @@ ul, ol {
   overflow: hidden;
   padding-top: 80px;
   background-image: url('/bg-hero-vintage.png');
-  background-size: cover;
-  background-position: right center;
+  background-size: 55% auto;
+  background-position: right -5% center;
   background-repeat: no-repeat;
   background-blend-mode: multiply;
+  background-color: var(--sand);
 }
 
 .hero__canvas {
