@@ -98,8 +98,13 @@ export default function Hero() {
     let animFrame;
     let time = 0;
 
+    // Reduce workload on mobile
+    const isMobile = window.innerWidth < 768;
+    const particleCount = isMobile ? 15 : 40;
+    const gridSize = isMobile ? 80 : 55;
+
     // Floating particles
-    const particles = Array.from({ length: 40 }, () => ({
+    const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random(),
       y: Math.random(),
       vx: (Math.random() - 0.5) * 0.0003,
@@ -131,9 +136,9 @@ export default function Hero() {
       time += 0.002;
 
       // Molecular grid
-      const gridSize = 55;
-      for (let x = 0; x < w; x += gridSize) {
-        for (let y = 0; y < h; y += gridSize) {
+      const gSize = gridSize;
+      for (let x = 0; x < w; x += gSize) {
+        for (let y = 0; y < h; y += gSize) {
           const offsetX = Math.sin(time + y * 0.008) * 8;
           const offsetY = Math.cos(time + x * 0.008) * 8;
           const px = x + offsetX;
@@ -149,22 +154,22 @@ export default function Hero() {
       // Connection lines between nearby grid points
       ctx.strokeStyle = 'rgba(163, 177, 138, 0.035)';
       ctx.lineWidth = 0.5;
-      for (let x = 0; x < w; x += gridSize) {
-        for (let y = 0; y < h; y += gridSize) {
+      for (let x = 0; x < w; x += gSize) {
+        for (let y = 0; y < h; y += gSize) {
           const offsetX = Math.sin(time + y * 0.008) * 8;
           const offsetY = Math.cos(time + x * 0.008) * 8;
-          if (x + gridSize < w) {
+          if (x + gSize < w) {
             const nextOffsetX = Math.sin(time + y * 0.008) * 8;
             ctx.beginPath();
             ctx.moveTo(x + offsetX, y + offsetY);
-            ctx.lineTo(x + gridSize + nextOffsetX, y + offsetY);
+            ctx.lineTo(x + gSize + nextOffsetX, y + offsetY);
             ctx.stroke();
           }
-          if (y + gridSize < h) {
+          if (y + gSize < h) {
             const nextOffsetY = Math.cos(time + x * 0.008) * 8;
             ctx.beginPath();
             ctx.moveTo(x + offsetX, y + offsetY);
-            ctx.lineTo(x + offsetX, y + gridSize + nextOffsetY);
+            ctx.lineTo(x + offsetX, y + gSize + nextOffsetY);
             ctx.stroke();
           }
         }
@@ -183,24 +188,26 @@ export default function Hero() {
         ctx.fill();
       });
 
-      // Draw connections between close particles
-      ctx.strokeStyle = 'rgba(176, 137, 104, 0.04)';
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = (particles[i].x - particles[j].x) * w;
-          const dy = (particles[i].y - particles[j].y) * h;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx.globalAlpha = 1 - dist / 120;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x * w, particles[i].y * h);
-            ctx.lineTo(particles[j].x * w, particles[j].y * h);
-            ctx.stroke();
+      // Draw connections between close particles (skip on mobile for performance)
+      if (!isMobile) {
+        ctx.strokeStyle = 'rgba(176, 137, 104, 0.04)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = (particles[i].x - particles[j].x) * w;
+            const dy = (particles[i].y - particles[j].y) * h;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 120) {
+              ctx.globalAlpha = 1 - dist / 120;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x * w, particles[i].y * h);
+              ctx.lineTo(particles[j].x * w, particles[j].y * h);
+              ctx.stroke();
+            }
           }
         }
+        ctx.globalAlpha = 1;
       }
-      ctx.globalAlpha = 1;
 
       // Primary waveform
       ctx.strokeStyle = 'rgba(176, 137, 104, 0.1)';

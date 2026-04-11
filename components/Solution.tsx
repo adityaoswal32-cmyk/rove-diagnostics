@@ -49,6 +49,7 @@ export default function Solution() {
   const sectionRef = useRef(null);
   const featuresRef = useRef(null);
   const [progressHeight, setProgressHeight] = useState(0);
+  const ticking = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -71,16 +72,24 @@ export default function Solution() {
     return () => observer.disconnect();
   }, []);
 
-  // Scroll-linked progress line
+  // Scroll-linked progress line — throttled with rAF
   useEffect(() => {
     const handleScroll = () => {
-      if (!featuresRef.current) return;
-      const rect = featuresRef.current.getBoundingClientRect();
-      const viewH = window.innerHeight;
-      if (rect.top < viewH && rect.bottom > 0) {
-        const progress = Math.min(1, Math.max(0, (viewH - rect.top) / (viewH + rect.height)));
-        setProgressHeight(progress * 100);
-      }
+      if (ticking.current) return;
+      ticking.current = true;
+      requestAnimationFrame(() => {
+        if (!featuresRef.current) {
+          ticking.current = false;
+          return;
+        }
+        const rect = featuresRef.current.getBoundingClientRect();
+        const viewH = window.innerHeight;
+        if (rect.top < viewH && rect.bottom > 0) {
+          const progress = Math.min(1, Math.max(0, (viewH - rect.top) / (viewH + rect.height)));
+          setProgressHeight(progress * 100);
+        }
+        ticking.current = false;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });

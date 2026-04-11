@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 export default function HormoneWave() {
   const canvasRef = useRef(null);
   const sectionRef = useRef(null);
   const [activePhase, setActivePhase] = useState(0);
-  const tooltipRef = useRef({ visible: false, x: 0, y: 0, label: '', value: '' });
+
+  // Use refs for mutable animation state to avoid re-registering listeners
+  const progressRef = useRef(0);
+  const targetProgressRef = useRef(0);
+  const activePhaseRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -15,9 +19,7 @@ export default function HormoneWave() {
 
     const ctx = canvas.getContext('2d');
     let animFrame;
-    let progress = 0;
-    let targetProgress = 0;
-    
+
     // Store logical dimensions
     let logicalW = canvas.clientWidth || 800;
     let logicalH = canvas.clientHeight || 350;
@@ -29,18 +31,14 @@ export default function HormoneWave() {
       if (logicalW === 0 || logicalH === 0) return;
       if (logicalW === lastW && Math.abs(logicalH - lastH) < 80) return;
       lastW = logicalW; lastH = logicalH;
-      
+
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      // Set actual size in memory (scaled for retina)
       canvas.width = logicalW * dpr;
       canvas.height = logicalH * dpr;
-      
-      // Normalize coordinate system to use css pixels
       ctx.scale(dpr, dpr);
     };
 
     resize();
-    // Use ResizeObserver for more robust resizing
     const resizeObserver = new ResizeObserver(() => resize());
     resizeObserver.observe(canvas);
 
@@ -51,9 +49,8 @@ export default function HormoneWave() {
         fillColor: 'rgba(163, 177, 138, 0.06)',
         label: 'FSH',
         curve: (x) => {
-          // Broad early peak + smaller mid-cycle peak
-          return 0.15 + 
-                 0.3 * Math.exp(-Math.pow((x - 0.12) / 0.08, 2)) + 
+          return 0.15 +
+                 0.3 * Math.exp(-Math.pow((x - 0.12) / 0.08, 2)) +
                  0.18 * Math.exp(-Math.pow((x - 0.48) / 0.06, 2));
         },
         annotations: [
@@ -65,7 +62,6 @@ export default function HormoneWave() {
         fillColor: 'rgba(176, 137, 104, 0.05)',
         label: 'LH',
         curve: (x) => {
-          // Baseline + sharp ovulatory surge
           return 0.12 + 0.75 * Math.exp(-Math.pow((x - 0.48) / 0.025, 2));
         },
         annotations: [
@@ -77,9 +73,8 @@ export default function HormoneWave() {
         fillColor: 'rgba(212, 165, 116, 0.04)',
         label: 'E3G',
         curve: (x) => {
-          // Gradual rise to pre-ovulatory peak, then sharp drop, then smaller luteal rise
           const w = x < 0.43 ? 0.18 : 0.06;
-          return 0.15 + 
+          return 0.15 +
                  0.55 * Math.exp(-Math.pow((x - 0.43) / w, 2)) +
                  0.15 * Math.exp(-Math.pow((x - 0.7) / 0.15, 2));
         },
@@ -92,7 +87,6 @@ export default function HormoneWave() {
         fillColor: 'rgba(139, 125, 107, 0.04)',
         label: 'PDG',
         curve: (x) => {
-          // Flat baseline, sharp rise post-ovulation, broad luteal peak
           const w = x < 0.72 ? 0.09 : 0.18;
           return 0.08 + 0.65 * Math.exp(-Math.pow((x - 0.72) / w, 2));
         },
@@ -109,23 +103,33 @@ export default function HormoneWave() {
       { name: 'Luteal', start: 0.57, end: 1 },
     ];
 
+    // Throttled scroll handler using rAF
+    let scrollTicking = false;
     const handleScroll = () => {
-      const rect = section.getBoundingClientRect();
-      const viewH = window.innerHeight;
-      const sectionTop = rect.top;
-      const sectionH = rect.height;
-      const scrollStart = viewH * 0.8;
-      const scrollEnd = -sectionH * 0.3;
+      if (scrollTicking) return;
+      scrollTicking = true;
+      requestAnimationFrame(() => {
+        const rect = section.getBoundingClientRect();
+        const viewH = window.innerHeight;
+        const sectionTop = rect.top;
+        const sectionH = rect.height;
+        const scrollStart = viewH * 0.8;
+        const scrollEnd = -sectionH * 0.3;
 
-      if (sectionTop <= scrollStart && sectionTop >= scrollEnd) {
-        const rawProgress = (scrollStart - sectionTop) / (scrollStart - scrollEnd);
-        targetProgress = Math.max(0, Math.min(1, rawProgress));
-      }
+        if (sectionTop <= scrollStart && sectionTop >= scrollEnd) {
+          const rawProgress = (scrollStart - sectionTop) / (scrollStart - scrollEnd);
+          targetProgressRef.current = Math.max(0, Math.min(1, rawProgress));
+        }
 
-      const phaseIdx = phases.findIndex(
-        (p) => targetProgress >= p.start && targetProgress < p.end
-      );
-      if (phaseIdx >= 0) setActivePhase(phaseIdx);
+        const phaseIdx = phases.findIndex(
+          (p) => targetProgressRef.current >= p.start && targetProgressRef.current < p.end
+        );
+        if (phaseIdx >= 0 && phaseIdx !== activePhaseRef.current) {
+          activePhaseRef.current = phaseIdx;
+          setActivePhase(phaseIdx);
+        }
+        scrollTicking = false;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -137,11 +141,13 @@ export default function HormoneWave() {
         animFrame = requestAnimationFrame(draw);
         return;
       }
-      
+
       ctx.clearRect(0, 0, w, h);
 
       // Smooth interpolation
-      progress += (targetProgress - progress) * 0.08;
+      progressRef.current += (targetProgressRef.current - progressRef.current) * 0.08;
+      const progress = progressRef.current;
+      const currentActivePhase = activePhaseRef.current;
 
       const padX = 40;
       const padTop = 30;
@@ -184,7 +190,7 @@ export default function HormoneWave() {
       phases.forEach((phase, idx) => {
         const x1 = padX + phase.start * chartW;
         const x2 = padX + phase.end * chartW;
-        ctx.fillStyle = idx === activePhase
+        ctx.fillStyle = idx === currentActivePhase
           ? 'rgba(163, 177, 138, 0.06)'
           : 'transparent';
         ctx.fillRect(x1, padTop, x2 - x1, chartH);
@@ -269,8 +275,6 @@ export default function HormoneWave() {
           // Glow
           ctx.beginPath();
           ctx.arc(dotX, dotY, 8, 0, Math.PI * 2);
-          ctx.fillStyle = hormone.color.replace(')', ', 0.12)').replace('rgb', 'rgba').replace('#', '');
-          // Use a solid glow approach
           const glowGrad = ctx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 10);
           glowGrad.addColorStop(0, hormone.fillColor);
           glowGrad.addColorStop(1, 'transparent');
@@ -362,7 +366,8 @@ export default function HormoneWave() {
       window.removeEventListener('scroll', handleScroll);
       resizeObserver.disconnect();
     };
-  }, [activePhase]);
+   
+  }, []); // Run once — all mutable state is in refs
 
   const phases = [
     { name: 'Menstrual', days: 'Days 1–5' },

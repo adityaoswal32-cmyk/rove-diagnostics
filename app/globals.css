@@ -58,9 +58,9 @@
 }
 
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* scroll-behavior: smooth removed — causes jank on mobile with repeated fast scrolls */
 }
 
 body {
@@ -71,6 +71,7 @@ body {
   color: var(--charcoal);
   background-color: var(--bone);
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -619,8 +620,10 @@ ul, ol {
   right: 0;
   z-index: 1000;
   padding: var(--space-sm) 0;
-  transition: all var(--transition-base);
+  transition: background-color var(--transition-base), padding var(--transition-base);
   background-color: transparent;
+  will-change: background-color;
+  transform: translateZ(0); /* GPU composite layer */
 }
 
 .navbar.scrolled {
@@ -629,6 +632,7 @@ ul, ol {
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(214, 204, 194, 0.3);
   padding: 0.6rem 0;
+  will-change: auto; /* Reset after transition settles */
 }
 
 .navbar__inner {
@@ -740,6 +744,7 @@ ul, ol {
 /* ── Hero ─────────────────────────────────────────── */
 .hero {
   min-height: 100svh;
+  min-height: 100dvh; /* Dynamic viewport for mobile address bar */
   display: flex;
   align-items: center;
   position: relative;
@@ -751,6 +756,7 @@ ul, ol {
   background-repeat: no-repeat;
   background-blend-mode: multiply;
   background-color: var(--sand);
+  transform: translateZ(0); /* GPU composite layer */
 }
 
 .hero__canvas {
@@ -1892,5 +1898,25 @@ ul, ol {
 
   .hero__actions {
     flex-direction: column;
+  }
+
+  /* Reduce animation complexity on small mobile screens */
+  .particle {
+    animation-duration: 12s;
+  }
+
+  .dna-helix {
+    display: none; /* Hide decorative helix on small screens to save GPU cycles */
+  }
+
+  .hero__canvas {
+    opacity: 0.3; /* Reduce canvas visual weight to match perf reduction */
+  }
+}
+
+/* ── Smooth Scroll for anchor links only (not the whole page) ── */
+@media (prefers-reduced-motion: no-preference) {
+  html:focus-within {
+    scroll-behavior: smooth;
   }
 }
