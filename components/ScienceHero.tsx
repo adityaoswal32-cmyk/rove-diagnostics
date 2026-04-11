@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createRevealObserver } from '@/lib/scrollReveal';
 
 function FloatingParticles() {
   const [particles, setParticles] = useState([]);
@@ -48,16 +49,7 @@ export default function ScienceHero() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
+    const observer = createRevealObserver({ threshold: 0.15 });
 
     const els = sectionRef.current?.querySelectorAll('.reveal');
     els?.forEach((el) => observer.observe(el));

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Home, Smartphone, LineChart, Lightbulb } from 'lucide-react';
+import { createRevealObserver } from '@/lib/scrollReveal';
 
 function AnimatedStepIcon({ type }) {
   const icons = {
@@ -21,26 +22,20 @@ export default function HowItWorks() {
   const lineFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            const target = entry.target as HTMLElement;
-            const stepIndex = target.dataset.step;
-            if (stepIndex !== undefined) {
-              setRevealedSteps((prev) => {
-                if (prev.has(stepIndex)) return prev;
-                const next = new Set(prev);
-                next.add(stepIndex);
-                return next;
-              });
-            }
-          }
+    const observer = createRevealObserver({
+      threshold: 0.15,
+      onReveal: (element) => {
+        const stepIndex = element.dataset.step;
+        if (stepIndex === undefined) return;
+
+        setRevealedSteps((prev) => {
+          if (prev.has(stepIndex)) return prev;
+          const next = new Set(prev);
+          next.add(stepIndex);
+          return next;
         });
       },
-      { threshold: 0.15 }
-    );
+    });
 
     const els = sectionRef.current?.querySelectorAll('.reveal');
     els?.forEach((el) => observer.observe(el));

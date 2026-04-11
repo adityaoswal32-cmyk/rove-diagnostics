@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { shouldRevealEntry } from '@/lib/scrollReveal';
 
 interface WordRevealProps {
   text: string;
@@ -14,8 +15,12 @@ function WordReveal({ text, className }: WordRevealProps) {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.3 }
+      ([entry], currentObserver) => {
+        if (!shouldRevealEntry(entry)) return;
+        setVisible(true);
+        currentObserver.disconnect();
+      },
+      { threshold: 0 }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();

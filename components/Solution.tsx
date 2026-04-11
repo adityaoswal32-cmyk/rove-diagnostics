@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createRevealObserver, shouldRevealEntry } from '@/lib/scrollReveal';
 
 function TypewriterText({ text, delay = 0 }) {
   const [displayed, setDisplayed] = useState('');
@@ -9,8 +10,12 @@ function TypewriterText({ text, delay = 0 }) {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setStarted(true); },
-      { threshold: 0.5 }
+      ([entry], currentObserver) => {
+        if (!shouldRevealEntry(entry)) return;
+        setStarted(true);
+        currentObserver.disconnect();
+      },
+      { threshold: 0 }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
@@ -54,19 +59,14 @@ export default function Solution() {
   const progressHeightRef = useRef(0);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            entry.target.querySelectorAll('.text-highlight').forEach(el => {
-              el.classList.add('active');
-            });
-          }
+    const observer = createRevealObserver({
+      threshold: 0.1,
+      onReveal: (element) => {
+        element.querySelectorAll('.text-highlight').forEach((highlight) => {
+          highlight.classList.add('active');
         });
       },
-      { threshold: 0.1 }
-    );
+    });
 
     const els = sectionRef.current?.querySelectorAll('.reveal, .reveal-left, .reveal-right');
     els?.forEach((el) => observer.observe(el));

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createRevealObserver } from '@/lib/scrollReveal';
 
 const sparklinePaths = {
   FSH: "M0,20 Q5,5 12,18 Q18,28 25,15 Q35,5 45,20 Q55,28 65,12 Q75,8 80,18",
@@ -14,22 +15,20 @@ export default function Biomarkers() {
   const [animatedCards, setAnimatedCards] = useState(new Set());
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            // Check for sparklines inside
-            const target = entry.target as HTMLElement;
-            const index = target.dataset.index;
-            if (index !== undefined) {
-              setAnimatedCards(prev => new Set([...prev, index]));
-            }
-          }
+    const observer = createRevealObserver({
+      threshold: 0.15,
+      onReveal: (element) => {
+        const index = element.dataset.index;
+        if (index === undefined) return;
+
+        setAnimatedCards((prev) => {
+          if (prev.has(index)) return prev;
+          const next = new Set(prev);
+          next.add(index);
+          return next;
         });
       },
-      { threshold: 0.15 }
-    );
+    });
 
     const els = sectionRef.current?.querySelectorAll('.reveal');
     els?.forEach((el) => observer.observe(el));

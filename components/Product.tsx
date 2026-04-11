@@ -2,21 +2,13 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { createRevealObserver } from '@/lib/scrollReveal';
 
 export default function Product() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
+    const observer = createRevealObserver({ threshold: 0.1 });
 
     const els = sectionRef.current?.querySelectorAll('.reveal');
     els?.forEach((el) => observer.observe(el));

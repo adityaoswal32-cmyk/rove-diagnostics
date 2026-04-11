@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { UserX, Clock, FlaskConical } from 'lucide-react';
+import { createRevealObserver, shouldRevealEntry } from '@/lib/scrollReveal';
 
 function AnimatedCounter({ target, suffix = '', duration = 1500 }) {
   const [count, setCount] = useState(0);
@@ -11,7 +12,7 @@ function AnimatedCounter({ target, suffix = '', duration = 1500 }) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
+        if (shouldRevealEntry(entry) && !hasAnimated.current) {
           hasAnimated.current = true;
           const start = performance.now();
           const animate = (now) => {
@@ -36,20 +37,14 @@ export default function Problem() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            // Activate text highlights
-            entry.target.querySelectorAll('.text-highlight').forEach(el => {
-              el.classList.add('active');
-            });
-          }
+    const observer = createRevealObserver({
+      threshold: 0.12,
+      onReveal: (element) => {
+        element.querySelectorAll('.text-highlight').forEach((highlight) => {
+          highlight.classList.add('active');
         });
       },
-      { threshold: 0.12 }
-    );
+    });
 
     const els = sectionRef.current?.querySelectorAll('.reveal');
     els?.forEach((el) => observer.observe(el));

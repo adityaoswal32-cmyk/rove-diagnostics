@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Target, TrendingUp, Microscope } from 'lucide-react';
+import { createRevealObserver, shouldRevealEntry } from '@/lib/scrollReveal';
 
 function AnimatedStat({ value, suffix = '', prefix = '' }) {
   const [count, setCount] = useState(0);
@@ -11,7 +12,7 @@ function AnimatedStat({ value, suffix = '', prefix = '' }) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
+        if (shouldRevealEntry(entry) && !hasAnimated.current) {
           hasAnimated.current = true;
           const numericValue = parseFloat(value);
           const isDecimal = String(value).includes('.');
@@ -69,19 +70,14 @@ export default function ClinicalRelevance() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            entry.target.querySelectorAll('.text-highlight').forEach(el => {
-              el.classList.add('active');
-            });
-          }
+    const observer = createRevealObserver({
+      threshold: 0.1,
+      onReveal: (element) => {
+        element.querySelectorAll('.text-highlight').forEach((highlight) => {
+          highlight.classList.add('active');
         });
       },
-      { threshold: 0.1 }
-    );
+    });
 
     const els = sectionRef.current?.querySelectorAll('.reveal');
     els?.forEach((el) => observer.observe(el));

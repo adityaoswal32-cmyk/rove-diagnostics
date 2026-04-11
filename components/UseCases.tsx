@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Activity, HeartPulse, RefreshCcw, ShieldCheck } from 'lucide-react';
+import { createRevealObserver } from '@/lib/scrollReveal';
 
 const useCaseIcons = {
   pcos: <Activity strokeWidth={1.5} size={32} color="var(--sage)" />,
@@ -21,20 +22,14 @@ export default function UseCases() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            // Activate text highlights
-            entry.target.querySelectorAll('.text-highlight').forEach(el => {
-              el.classList.add('active');
-            });
-          }
+    const observer = createRevealObserver({
+      threshold: 0.1,
+      onReveal: (element) => {
+        element.querySelectorAll('.text-highlight').forEach((highlight) => {
+          highlight.classList.add('active');
         });
       },
-      { threshold: 0.1 }
-    );
+    });
 
     const els = sectionRef.current?.querySelectorAll('.reveal');
     els?.forEach((el) => observer.observe(el));
