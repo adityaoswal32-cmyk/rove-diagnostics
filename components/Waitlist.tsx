@@ -7,15 +7,19 @@ function FloatingParticles() {
 
   useEffect(() => {
     // Generate random values only on client side to prevent hydration mismatches
-    setParticles(
-      Array.from({ length: 15 }, () => ({
-        left: `${Math.random() * 100}%`,
-        animationDuration: `${8 + Math.random() * 12}s`,
-        animationDelay: `${Math.random() * 8}s`,
-        width: `${2 + Math.random() * 3}px`,
-        height: `${2 + Math.random() * 3}px`,
-      }))
-    );
+    const frame = window.requestAnimationFrame(() => {
+      setParticles(
+        Array.from({ length: 15 }, () => ({
+          left: `${Math.random() * 100}%`,
+          animationDuration: `${8 + Math.random() * 12}s`,
+          animationDelay: `${Math.random() * 8}s`,
+          width: `${2 + Math.random() * 3}px`,
+          height: `${2 + Math.random() * 3}px`,
+        }))
+      );
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   // Return empty container during SSR / pre-hydration

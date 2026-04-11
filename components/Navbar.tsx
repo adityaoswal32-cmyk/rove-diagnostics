@@ -7,18 +7,31 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const ticking = useRef(false);
+  const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const updateScrolled = () => {
+      frameRef.current = null;
+      ticking.current = false;
+      const nextScrolled = window.scrollY > 40;
+      setScrolled((prev) => (prev === nextScrolled ? prev : nextScrolled));
+    };
+
     const handleScroll = () => {
       if (ticking.current) return;
       ticking.current = true;
-      requestAnimationFrame(() => {
-        setScrolled(window.scrollY > 40);
-        ticking.current = false;
-      });
+      frameRef.current = window.requestAnimationFrame(updateScrolled);
     };
+
+    updateScrolled();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const closeMenu = () => setMenuOpen(false);

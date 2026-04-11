@@ -50,6 +50,8 @@ export default function Solution() {
   const featuresRef = useRef(null);
   const [progressHeight, setProgressHeight] = useState(0);
   const ticking = useRef(false);
+  const frameRef = useRef<number | null>(null);
+  const progressHeightRef = useRef(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -74,26 +76,44 @@ export default function Solution() {
 
   // Scroll-linked progress line — throttled with rAF
   useEffect(() => {
+    const updateProgress = () => {
+      frameRef.current = null;
+      ticking.current = false;
+      if (!featuresRef.current) return;
+
+      const rect = featuresRef.current.getBoundingClientRect();
+      const viewH = window.innerHeight;
+      let nextProgress = 0;
+
+      if (rect.top < viewH && rect.bottom > 0) {
+        const progress = Math.min(1, Math.max(0, (viewH - rect.top) / (viewH + rect.height)));
+        nextProgress = Math.round(progress * 100);
+      } else if (rect.bottom <= 0) {
+        nextProgress = 100;
+      }
+
+      if (nextProgress === progressHeightRef.current) return;
+      progressHeightRef.current = nextProgress;
+      setProgressHeight(nextProgress);
+    };
+
     const handleScroll = () => {
       if (ticking.current) return;
       ticking.current = true;
-      requestAnimationFrame(() => {
-        if (!featuresRef.current) {
-          ticking.current = false;
-          return;
-        }
-        const rect = featuresRef.current.getBoundingClientRect();
-        const viewH = window.innerHeight;
-        if (rect.top < viewH && rect.bottom > 0) {
-          const progress = Math.min(1, Math.max(0, (viewH - rect.top) / (viewH + rect.height)));
-          setProgressHeight(progress * 100);
-        }
-        ticking.current = false;
-      });
+      frameRef.current = window.requestAnimationFrame(updateProgress);
     };
 
+    updateProgress();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+
+    return () => {
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   const features = [

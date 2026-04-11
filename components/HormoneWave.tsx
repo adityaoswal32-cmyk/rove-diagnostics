@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function HormoneWave() {
   const canvasRef = useRef(null);
@@ -18,7 +18,9 @@ export default function HormoneWave() {
     if (!canvas || !section) return;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     let animFrame;
+    let scrollFrame: number | null = null;
 
     // Store logical dimensions
     let logicalW = canvas.clientWidth || 800;
@@ -33,9 +35,9 @@ export default function HormoneWave() {
       lastW = logicalW; lastH = logicalH;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = logicalW * dpr;
-      canvas.height = logicalH * dpr;
-      ctx.scale(dpr, dpr);
+      canvas.width = Math.round(logicalW * dpr);
+      canvas.height = Math.round(logicalH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     resize();
@@ -103,36 +105,40 @@ export default function HormoneWave() {
       { name: 'Luteal', start: 0.57, end: 1 },
     ];
 
-    // Throttled scroll handler using rAF
-    let scrollTicking = false;
+    const updateScrollState = () => {
+      scrollFrame = null;
+      const rect = section.getBoundingClientRect();
+      const viewH = window.innerHeight;
+      const sectionTop = rect.top;
+      const sectionH = rect.height;
+      const scrollStart = viewH * 0.8;
+      const scrollEnd = -sectionH * 0.3;
+
+      if (sectionTop > scrollStart) {
+        targetProgressRef.current = 0;
+      } else if (sectionTop < scrollEnd) {
+        targetProgressRef.current = 1;
+      } else {
+        const rawProgress = (scrollStart - sectionTop) / (scrollStart - scrollEnd);
+        targetProgressRef.current = Math.max(0, Math.min(1, rawProgress));
+      }
+
+      const phaseIdx = phases.findIndex(
+        (p) => targetProgressRef.current >= p.start && targetProgressRef.current < p.end
+      );
+      if (phaseIdx >= 0 && phaseIdx !== activePhaseRef.current) {
+        activePhaseRef.current = phaseIdx;
+        setActivePhase(phaseIdx);
+      }
+    };
+
     const handleScroll = () => {
-      if (scrollTicking) return;
-      scrollTicking = true;
-      requestAnimationFrame(() => {
-        const rect = section.getBoundingClientRect();
-        const viewH = window.innerHeight;
-        const sectionTop = rect.top;
-        const sectionH = rect.height;
-        const scrollStart = viewH * 0.8;
-        const scrollEnd = -sectionH * 0.3;
-
-        if (sectionTop <= scrollStart && sectionTop >= scrollEnd) {
-          const rawProgress = (scrollStart - sectionTop) / (scrollStart - scrollEnd);
-          targetProgressRef.current = Math.max(0, Math.min(1, rawProgress));
-        }
-
-        const phaseIdx = phases.findIndex(
-          (p) => targetProgressRef.current >= p.start && targetProgressRef.current < p.end
-        );
-        if (phaseIdx >= 0 && phaseIdx !== activePhaseRef.current) {
-          activePhaseRef.current = phaseIdx;
-          setActivePhase(phaseIdx);
-        }
-        scrollTicking = false;
-      });
+      if (scrollFrame !== null) return;
+      scrollFrame = window.requestAnimationFrame(updateScrollState);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
 
     const draw = () => {
       const w = logicalW;
@@ -362,8 +368,12 @@ export default function HormoneWave() {
 
     return () => {
       cancelAnimationFrame(animFrame);
+      if (scrollFrame !== null) {
+        cancelAnimationFrame(scrollFrame);
+      }
       visibilityObserver.disconnect();
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
       resizeObserver.disconnect();
     };
    

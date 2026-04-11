@@ -17,6 +17,8 @@ export default function HowItWorks() {
   const sectionRef = useRef(null);
   const [lineProgress, setLineProgress] = useState(0);
   const [revealedSteps, setRevealedSteps] = useState(new Set());
+  const lineProgressRef = useRef(0);
+  const lineFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -27,7 +29,12 @@ export default function HowItWorks() {
             const target = entry.target as HTMLElement;
             const stepIndex = target.dataset.step;
             if (stepIndex !== undefined) {
-              setRevealedSteps(prev => new Set([...prev, stepIndex]));
+              setRevealedSteps((prev) => {
+                if (prev.has(stepIndex)) return prev;
+                const next = new Set(prev);
+                next.add(stepIndex);
+                return next;
+              });
             }
           }
         });
@@ -43,17 +50,42 @@ export default function HowItWorks() {
 
   // Progressive line fill on scroll
   useEffect(() => {
-    const handleScroll = () => {
+    const updateLineProgress = () => {
+      lineFrameRef.current = null;
       if (!sectionRef.current) return;
+
       const rect = sectionRef.current.getBoundingClientRect();
       const viewH = window.innerHeight;
+      let nextProgress = 0;
+
       if (rect.top < viewH && rect.bottom > 0) {
         const progress = Math.min(1, Math.max(0, (viewH - rect.top) / (viewH + rect.height * 0.5)));
-        setLineProgress(progress * 100);
+        nextProgress = Math.round(progress * 100);
+      } else if (rect.bottom <= 0) {
+        nextProgress = 100;
       }
+
+      if (nextProgress === lineProgressRef.current) return;
+      lineProgressRef.current = nextProgress;
+      setLineProgress(nextProgress);
     };
+
+    const handleScroll = () => {
+      if (lineFrameRef.current !== null) return;
+      lineFrameRef.current = window.requestAnimationFrame(updateLineProgress);
+    };
+
+    updateLineProgress();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+
+    return () => {
+      if (lineFrameRef.current !== null) {
+        window.cancelAnimationFrame(lineFrameRef.current);
+      }
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   const steps = [

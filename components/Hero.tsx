@@ -95,13 +95,14 @@ export default function Hero() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     let animFrame;
     let time = 0;
 
     // Reduce workload on mobile
-    const isMobile = window.innerWidth < 768;
-    const particleCount = isMobile ? 15 : 40;
-    const gridSize = isMobile ? 80 : 55;
+    const isReducedWorkload = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+    const particleCount = isReducedWorkload ? 15 : 40;
+    const gridSize = isReducedWorkload ? 80 : 55;
 
     // Floating particles
     const particles = Array.from({ length: particleCount }, () => ({
@@ -117,13 +118,14 @@ export default function Hero() {
     const resize = () => {
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
+      if (w === 0 || h === 0) return;
       if (w === lastW && Math.abs(h - lastH) < 80) return; // Prevent mobile address-bar resize glitches
       lastW = w; lastH = h;
-      
+
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.scale(dpr, dpr);
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     resize();

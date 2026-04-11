@@ -6,16 +6,20 @@ function FloatingParticles() {
   const [particles, setParticles] = useState([]);
 
   useEffect(() => {
-    setParticles(
-      Array.from({ length: 8 }, () => ({
-        left: `${Math.random() * 100}%`,
-        animationDuration: `${10 + Math.random() * 15}s`,
-        animationDelay: `${Math.random() * 5}s`,
-        width: `${2 + Math.random() * 2}px`,
-        height: `${2 + Math.random() * 2}px`,
-        backgroundColor: 'rgba(163, 177, 138, 0.15)',
-      }))
-    );
+    const frame = window.requestAnimationFrame(() => {
+      setParticles(
+        Array.from({ length: 8 }, () => ({
+          left: `${Math.random() * 100}%`,
+          animationDuration: `${10 + Math.random() * 15}s`,
+          animationDelay: `${Math.random() * 5}s`,
+          width: `${2 + Math.random() * 2}px`,
+          height: `${2 + Math.random() * 2}px`,
+          backgroundColor: 'rgba(163, 177, 138, 0.15)',
+        }))
+      );
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   if (particles.length === 0) return <div className="particles-container" aria-hidden="true" />;
