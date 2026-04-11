@@ -191,7 +191,7 @@ export default function Hero() {
       });
 
       // Draw connections between close particles (skip on mobile for performance)
-      if (!isMobile) {
+      if (!isReducedWorkload) {
         ctx.strokeStyle = 'rgba(176, 137, 104, 0.04)';
         ctx.lineWidth = 0.5;
         for (let i = 0; i < particles.length; i++) {

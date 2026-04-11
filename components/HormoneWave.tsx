@@ -124,7 +124,10 @@ export default function HormoneWave() {
       }
 
       const phaseIdx = phases.findIndex(
-        (p) => targetProgressRef.current >= p.start && targetProgressRef.current < p.end
+        (phase, idx) => (
+          targetProgressRef.current >= phase.start &&
+          (targetProgressRef.current < phase.end || (idx === phases.length - 1 && targetProgressRef.current <= phase.end))
+        )
       );
       if (phaseIdx >= 0 && phaseIdx !== activePhaseRef.current) {
         activePhaseRef.current = phaseIdx;

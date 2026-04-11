@@ -192,6 +192,34 @@ ul, ol {
   transform: scale(1);
 }
 
+/*
+ * Mobile safety net: If JS IntersectionObserver fails to fire (GPU crash,
+ * script error, etc.), content auto-reveals after a short delay so the page
+ * is never blank. The animation is gentle enough to feel intentional.
+ */
+@media (max-width: 968px) {
+  .reveal,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale {
+    animation: mobileAutoReveal 0.8s ease forwards;
+    animation-delay: 0.3s;
+  }
+  .reveal-delay-1 { animation-delay: 0.4s; }
+  .reveal-delay-2 { animation-delay: 0.5s; }
+  .reveal-delay-3 { animation-delay: 0.6s; }
+  .reveal-delay-4 { animation-delay: 0.7s; }
+  .reveal-delay-5 { animation-delay: 0.8s; }
+  .reveal-delay-6 { animation-delay: 0.9s; }
+}
+
+@keyframes mobileAutoReveal {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ── Word Reveal Animation ────────────────────────── */
 .word-reveal {
   display: flex;
@@ -210,6 +238,14 @@ ul, ol {
 .word-reveal__word.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Auto-reveal words on mobile as a safety net */
+@media (max-width: 968px) {
+  .word-reveal__word {
+    animation: mobileAutoReveal 0.6s ease forwards;
+    animation-delay: calc(0.5s + var(--word-index, 0) * 0.06s);
+  }
 }
 
 /* ── Text Highlight ───────────────────────────────── */
@@ -329,6 +365,13 @@ ul, ol {
   background-color: rgba(163, 177, 138, 0.3);
   border-radius: 50%;
   animation: particleFloat linear infinite;
+}
+
+/* Disable particles on mobile to save GPU */
+@media (max-width: 768px) {
+  .particle {
+    display: none;
+  }
 }
 
 @keyframes particleFloat {
@@ -771,6 +814,13 @@ ul, ol {
   z-index: 0;
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* Disable the heavy canvas animation on mobile to prevent GPU memory exhaustion */
+@media (max-width: 768px) {
+  .hero__canvas {
+    display: none;
+  }
 }
 
 .hero__content {
